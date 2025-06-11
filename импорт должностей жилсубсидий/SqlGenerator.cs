@@ -2,28 +2,23 @@
 
 public class SqlGenerator
 {
-    private readonly List<PositionEntry> _entries = [];
+    private readonly List<SQLPositionRecord> _SQLRecords = [];
     private int _nnumber = 1;
 
     /// <summary>
-    /// Добавляет запись иерархии в список для последующей генерации SQL.
+    /// Добавляет запись в список для последующей генерации SQL.
     /// </summary>
     /// <param name="node">Узел иерархии для добавления.</param>
     /// <param name="sectionName">Имя раздела, связанного с узлом.</param>
-    public void AddHierarchyEntry(Узел node, string sectionName)
+    public void AddSQLEntry(Узел node, string sectionName)
     {
         if (string.IsNullOrEmpty(node.Name)) return;
 
-        var entry = new PositionEntry
+        var record = new SQLPositionRecord(node.ParentDictId, node.Name, GenerateRegNumber(node), sectionName, _nnumber++)
         {
-            DictId = node.DictId,
-            ParentDictId = node.ParentDictId,
-            Name = node.Name,
-            RegNumber = GenerateRegNumber(node, sectionName),
-            SectionName = sectionName,
-            Nnumber = _nnumber++
+            DictId = node.DictId
         };
-        _entries.Add(entry);
+        _SQLRecords.Add(record);
     }
 
     /// <summary>
@@ -35,15 +30,8 @@ public class SqlGenerator
     /// <param name="sectionName">Имя раздела, связанного с должностью.</param>
     public void AddPositionEntry(string name, string regNumber, Узел parentNode, string sectionName)
     {
-        var entry = new PositionEntry
-        {
-            ParentDictId = parentNode.DictId,
-            Name = name,
-            RegNumber = regNumber,
-            SectionName = sectionName,
-            Nnumber = _nnumber++
-        };
-        _entries.Add(entry);
+        var record = new SQLPositionRecord(parentNode.DictId, name, regNumber, sectionName, _nnumber++);
+        _SQLRecords.Add(record);
     }
 
     /// <summary>
@@ -53,59 +41,34 @@ public class SqlGenerator
     /// <param name="sectionName">Имя раздела (не используется в текущей реализации).</param>
     /// <returns>Сгенерированный регистрационный номер.</returns>
     /// <exception cref="InvalidOperationException">Выбрасывается, если тип узла не поддерживается.</exception>
-    private static string GenerateRegNumber(Узел node, string sectionName)
+        // code Уровень          REGNUMBER           Пример
+        // XX   Раздел           XX-0-0-0R0          11-0-0-0R0
+        // A    Подраздел        XX-0-0-AR0          11-0-0-3R0
+        // B    Глава            XX-0-0-ARB          11-0-0-3R6
+        // Y    Категория        XX-Y-0-ARB          11-3-0-3R6
+        // Z    Группа           XX-Y-Z-ARB          11-3-4-3R6
+        // abc  Должность        XX-Y-Z-abc          11-3-4-001
+private static string GenerateRegNumber(Узел node)
     {
-        // Уровень REGNUMBER           Пример
-        // Раздел          XX-0-0-0R0          11-0-0-0R0
-        // Подраздел       XX-0-0-AR0          11-0-0-3R0
-        // Глава           XX-0-0-ARB          11-0-0-3R6
-        // Категория       XX-Y-0-ARB          11-3-0-3R6
-        // Группа          XX-Y-Z-ARB          11-3-4-3R6
-        // Должность       XX-Y-Z-abc          11-3-4-001
+        // дефолтные значения
+        string section  = "00",
+               category = "0",
+               group    = "0",
+               sub      = "0",
+               chapter  = "0";
 
-        // Начальные значения для всех частей номера
-        string раздел = "00";   // XX - значение раздела
-        string категория = "0";   // Y - значение категории
-        string группа = "0";      // Z - значение группы
-        string подраздел = "0"; // A - значение подраздела
-        string глава = "0";    // B - значение главы
+        // поднимаемся к корню и берем нужные значения
+        for (var n = node; n is not null; n = n.Parent)
+            switch (n)
+            {
+                case Раздел     s: section  = s.Value; break;
+                case Категория  c: category = c.Value; break;
+                case Группа     g: group    = g.Value; break;
+                case Подраздел  p: sub      = p.Value; break;
+                case Глава      h: chapter  = h.Value; break;
+            }
 
-        // Текущий узел
-        var currentNode = node;
-
-        // Проходим по иерархии вверх, чтобы найти значения для всех частей номера
-        while (currentNode != null)
-        {
-            if      (currentNode is Раздел)
-                раздел = currentNode.Value;
-            else if (currentNode is Подраздел)
-                подраздел = currentNode.Value;
-            else if (currentNode is Глава)
-                глава = currentNode.Value;
-            else if (currentNode is Категория)
-                категория = currentNode.Value;
-            else if (currentNode is Группа)
-                группа = currentNode.Value;
-            
-            // Переходим к родителю
-            currentNode = currentNode.Parent;
-        }
-
-        // Формируем номер в зависимости от типа узла
-        
-        
-        if      (node is Раздел)
-            return $"{раздел}-0-0-0R0";
-        else if (node is Подраздел)
-            return $"{раздел}-0-0-{подраздел}R0";
-        else if (node is Глава)
-            return $"{раздел}-0-0-{подраздел}R{глава}";
-        else if (node is Категория)
-            return $"{раздел}-{категория}-0-{подраздел}R{глава}";
-        else if (node is Группа)
-            return $"{раздел}-{категория}-{группа}-{подраздел}R{глава}";
-        else
-            throw new InvalidOperationException($"Unsupported node type: {node.GetType().Name}");
+        return $"{section}-{category}-{group}-{sub}R{chapter}";
     }
 
     /// <summary>
@@ -115,14 +78,14 @@ public class SqlGenerator
     /// <exception cref="Exception">Выбрасывается, если список записей пуст.</exception>
     public string GenerateInsertStatements()
     {
-        if (_entries.Count == 0) throw new Exception("пусто");
+        if (_SQLRecords.Count == 0) throw new Exception("пусто");
 
         // Разбиваем записи на пакеты по 1000 для оптимизации вставки
         const int batchSize = 1000;
         var sql = new StringBuilder();
-        for (int i = 0; i < _entries.Count; i += batchSize)
+        for (int i = 0; i < _SQLRecords.Count; i += batchSize)
         {
-            var batch = _entries.Skip(i).Take(batchSize).ToList();
+            var batch = _SQLRecords.Skip(i).Take(batchSize).ToList();
             sql.AppendLine("INSERT INTO [output] (DICT_ID, DICT_PARENT, REGNUMBER, NAME, NNUMBER, ORCL_ID, S_SECTION_NAME)");
             sql.AppendLine("VALUES");
 

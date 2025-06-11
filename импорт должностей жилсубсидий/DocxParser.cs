@@ -1,6 +1,7 @@
 ﻿using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
 using System.Text.RegularExpressions;
+using импорт_должностей_жилсубсидий;
 
 public class DocxParser
 {
@@ -84,14 +85,14 @@ public class DocxParser
         {
             // Обновляем имя раздела
             _hierarchyTree.ОбновитьИмяРаздела($"Раздел {_hierarchyTree.GetSectionNode().Value} {name}");
-            _sqlGenerator.AddHierarchyEntry(_hierarchyTree.GetSectionNode()!, name);
+            _sqlGenerator.AddSQLEntry(_hierarchyTree.GetSectionNode()!, name);
         }
-        // Если это другой узел иерархии
+        // Если это другой узел иерархии то обработка однотипная
         else if (node != null)
         {
             // Добавляем узел в иерархию и записываем в SQL
             _hierarchyTree.AddNode(node);
-            _sqlGenerator.AddHierarchyEntry(node, _hierarchyTree.GetSectionNode()?.Name ?? string.Empty);
+            _sqlGenerator.AddSQLEntry(node, _hierarchyTree.GetSectionNode()?.Name ?? string.Empty);
         }
     }
 

@@ -1,13 +1,15 @@
 ﻿using System.Text.RegularExpressions;
 
-public interface ITextParser
+namespace импорт_должностей_жилсубсидий;
+
+public interface IParser
 {
     bool CanParse(string text);
 
     (string Value, string Name, Узел? Node) Parse(string text);
 }
 
-public class ПарсерРаздела : ITextParser
+public class ПарсерРаздела : IParser
 {
     public bool CanParse(string text) => text.StartsWith("Раздел");
 
@@ -36,7 +38,7 @@ public class ПарсерРаздела : ITextParser
     }
 }
 
-public class ПарсерИмениРаздела : ITextParser
+public class ПарсерИмениРаздела : IParser
 {
     public bool CanParse(string text) => text.StartsWith("Перечень");
 
@@ -44,7 +46,7 @@ public class ПарсерИмениРаздела : ITextParser
         (string.Empty, text, null);
 }
 
-public class ПарсерПодраздела : ITextParser
+public class ПарсерПодраздела : IParser
 {
     public bool CanParse(string text) => text.StartsWith("Подраздел");
 
@@ -57,7 +59,7 @@ public class ПарсерПодраздела : ITextParser
     }
 }
 
-public class ПарсерГлавы : ITextParser
+public class ПарсерГлавы : IParser
 {
     public bool CanParse(string text) => text.StartsWith("Глава");
 
@@ -70,7 +72,7 @@ public class ПарсерГлавы : ITextParser
     }
 }
 
-public class ПасерКатегории : ITextParser
+public class ПасерКатегории : IParser
 {
     public bool CanParse(string text) => text.Contains("Должность категории") || text.Contains("Должности категории");
 
@@ -87,7 +89,7 @@ public class ПасерКатегории : ITextParser
     }
 }
 
-public class ПарсерГруппы : ITextParser
+public class ПарсерГруппы : IParser
 {
     public bool CanParse(string text) => text.Contains("группа должностей");
 
@@ -115,21 +117,21 @@ public class ПарсерГруппы : ITextParser
 
 public class TextParser
 {
-    private readonly ITextParser[] _parsers =
+    private readonly IParser[] _parsers =
     {
-        new ПарсерРаздела(),
-        new ПарсерИмениРаздела(),
-        new ПарсерПодраздела(),
-        new ПарсерГлавы(),
-        new ПасерКатегории(),
-        new ПарсерГруппы()
-    };
+    new ПарсерРаздела(),
+    new ПарсерИмениРаздела(),
+    new ПарсерПодраздела(),
+    new ПарсерГлавы(),
+    new ПасерКатегории(),
+    new ПарсерГруппы()
+};
 
     /// <summary>
     /// Возвращает подходящий парсер для указанного текста.
     /// </summary>
     /// <param name="text">Текст для проверки.</param>
     /// <returns>Подходящий парсер или null, если парсер не найден.</returns>
-    public ITextParser? GetParser(string text) =>
+    public IParser? GetParser(string text) =>
         _parsers.FirstOrDefault(p => p.CanParse(text));
 }

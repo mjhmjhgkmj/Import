@@ -1,11 +1,6 @@
-﻿public class PositionEntry
+﻿public record SQLPositionRecord(string? ParentDictId, string? Name, string? RegNumber, string? SectionName, int Nnumber)
 {
     public string? DictId { get; set; } = Guid.NewGuid().ToString();
-    public string? ParentDictId { get; set; }
-    public string? Name { get; set; }
-    public string? RegNumber { get; set; }
-    public string? SectionName { get; set; }
-    public int Nnumber { get; set; }
 
     public string ToValueString()
     {
