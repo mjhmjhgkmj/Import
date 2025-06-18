@@ -3,13 +3,13 @@
     /// <summary>
     /// Корневой узел иерархии. Может быть null, если иерархия еще не инициализирована.
     /// </summary>
-    public Узел? Root { get; private set; }
+    public Node? Root { get; private set; }
 
     /// <summary>
     /// Стек для отслеживания текущего пути в иерархии. 
     /// Вершина стека — последний добавленный узел.
     /// </summary>
-    public readonly Stack<Узел> _currentPath = new();
+    public readonly Stack<Node> _currentPath = new();
 
     /// <summary>
     /// Начинает новый раздел, создавая корневой узел и очищая текущий путь.
@@ -42,7 +42,7 @@
     /// </summary>
     /// <param name="node">Новый узел для добавления.</param>
     /// <exception cref="InvalidOperationException">Выбрасывается, если подходящий родитель не найден.</exception>
-    public void AddNode(Узел node)
+    public void AddNode(Node node)
     {
         // Находим подходящего родителя для нового узла
         var parent = FindSuitableParent(node);
@@ -68,7 +68,7 @@
     /// </summary>
     /// <param name="node">Новый узел, для которого нужно найти родителя.</param>
     /// <returns>Подходящий родитель или null, если родитель не найден.</returns>
-    private Узел? FindSuitableParent(Узел node)
+    private Node? FindSuitableParent(Node node)
     {
         // Если стек пуст, проверяем, может ли корень быть родителем
         if (!_currentPath.Any())
@@ -93,8 +93,8 @@
         // Если уровень нового узла выше или равен последнему,
         // ищем родителя среди узлов в стеке
         // Копируем стек для итерации, чтобы не изменять оригинальный
-        var pathCopy = new Stack<Узел>(_currentPath.Reverse());
-        Узел? parent = null;
+        var pathCopy = new Stack<Node>(_currentPath.Reverse());
+        Node? parent = null;
 
         // Проходим по копии стека, ищем узел с уровнем ниже уровня нового узла
         while (pathCopy.Any())
@@ -115,11 +115,11 @@
     /// Возвращает текущий узел (последний добавленный) из стека.
     /// </summary>
     /// <returns>Текущий узел или null, если стек пуст.</returns>
-    public Узел? GetCurrentNode() => _currentPath.TryPeek(out var node) ? node : null;
+    public Node? GetCurrentNode() => _currentPath.TryPeek(out var node) ? node : null;
 
     /// <summary>
     /// Возвращает корневой узел иерархии (раздел).
     /// </summary>
     /// <returns>Корневой узел или null, если иерархия не инициализирована.</returns>
-    public Узел? GetSectionNode() => Root;
+    public Node? GetSectionNode() => Root;
 }

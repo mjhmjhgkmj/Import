@@ -6,14 +6,14 @@ public interface IParser
 {
     bool CanParse(string text);
 
-    (string Value, string Name, Узел? Node) Parse(string text);
+    (string Value, string Name, Node? Node) Parse(string text);
 }
 
 public class ПарсерРаздела : IParser
 {
     public bool CanParse(string text) => text.StartsWith("Раздел");
 
-    public (string Value, string Name, Узел? Node) Parse(string text)
+    public (string Value, string Name, Node? Node) Parse(string text)
     {
         var value = NormalizeSectionValue(text);
         return (value, "Раздел", new Раздел(value, string.Empty));
@@ -42,7 +42,7 @@ public class ПарсерИмениРаздела : IParser
 {
     public bool CanParse(string text) => text.StartsWith("Перечень");
 
-    public (string Value, string Name, Узел? Node) Parse(string text) =>
+    public (string Value, string Name, Node? Node) Parse(string text) =>
         (string.Empty, text, null);
 }
 
@@ -50,7 +50,7 @@ public class ПарсерПодраздела : IParser
 {
     public bool CanParse(string text) => text.StartsWith("Подраздел");
 
-    public (string Value, string Name, Узел? Node) Parse(string text)
+    public (string Value, string Name, Node? Node) Parse(string text)
     {
         // Регулярное выражение: "Подраздел" и номер (например, "Подраздел 1")
         var match = Regex.Match(text, @"Подраздел (\d+)");
@@ -63,7 +63,7 @@ public class ПарсерГлавы : IParser
 {
     public bool CanParse(string text) => text.StartsWith("Глава");
 
-    public (string Value, string Name, Узел? Node) Parse(string text)
+    public (string Value, string Name, Node? Node) Parse(string text)
     {
         // Регулярное выражение: "Глава" и номер (например, "Глава 1")
         var match = Regex.Match(text, @"Глава (\d+)");
@@ -76,7 +76,7 @@ public class ПасерКатегории : IParser
 {
     public bool CanParse(string text) => text.Contains("Должность категории") || text.Contains("Должности категории");
 
-    public (string Value, string Name, Узел? Node) Parse(string text)
+    public (string Value, string Name, Node? Node) Parse(string text)
     {
         // Регулярное выражение: номер, любые символы, слово "категории" и все остальное (включая возможные кавычки)
         var match = Regex.Match(text, @"(\d+)\.\s*.*категории\s*""?.*""?");
@@ -93,7 +93,7 @@ public class ПарсерГруппы : IParser
 {
     public bool CanParse(string text) => text.Contains("группа должностей");
 
-    public (string Value, string Name, Узел? Node) Parse(string text) =>
+    public (string Value, string Name, Node? Node) Parse(string text) =>
         (GetGroupValue(text), text, new Группа(GetGroupValue(text), text));
 
     /// <summary>
@@ -119,13 +119,13 @@ public class TextParser
 {
     private readonly IParser[] _parsers =
     {
-    new ПарсерРаздела(),
-    new ПарсерИмениРаздела(),
-    new ПарсерПодраздела(),
-    new ПарсерГлавы(),
-    new ПасерКатегории(),
-    new ПарсерГруппы()
-};
+        new ПарсерРаздела(),
+        new ПарсерИмениРаздела(),
+        new ПарсерПодраздела(),
+        new ПарсерГлавы(),
+        new ПасерКатегории(),
+        new ПарсерГруппы()
+    };
 
     /// <summary>
     /// Возвращает подходящий парсер для указанного текста.
@@ -133,5 +133,5 @@ public class TextParser
     /// <param name="text">Текст для проверки.</param>
     /// <returns>Подходящий парсер или null, если парсер не найден.</returns>
     public IParser? GetParser(string text) =>
-        _parsers.FirstOrDefault(p => p.CanParse(text));
+        _parsers.First(p => p.CanParse(text));
 }

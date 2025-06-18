@@ -10,7 +10,7 @@ public class SqlGenerator
     /// </summary>
     /// <param name="node">Узел иерархии для добавления.</param>
     /// <param name="sectionName">Имя раздела, связанного с узлом.</param>
-    public void AddSQLEntry(Узел node, string sectionName)
+    public void AddSQLRecord(Node node, string sectionName)
     {
         if (string.IsNullOrEmpty(node.Name)) return;
 
@@ -28,7 +28,7 @@ public class SqlGenerator
     /// <param name="regNumber">Регистрационный номер должности.</param>
     /// <param name="parentNode">Родительский узел (группа).</param>
     /// <param name="sectionName">Имя раздела, связанного с должностью.</param>
-    public void AddPositionEntry(string name, string regNumber, Узел parentNode, string sectionName)
+    public void AddPositionRecord(string name, string regNumber, Node parentNode, string sectionName)
     {
         var record = new SQLPositionRecord(parentNode.DictId, name, regNumber, sectionName, _nnumber++);
         _SQLRecords.Add(record);
@@ -48,7 +48,7 @@ public class SqlGenerator
         // Y    Категория        XX-Y-0-ARB          11-3-0-3R6
         // Z    Группа           XX-Y-Z-ARB          11-3-4-3R6
         // abc  Должность        XX-Y-Z-abc          11-3-4-001
-private static string GenerateRegNumber(Узел node)
+private static string GenerateRegNumber(Node node)
     {
         // дефолтные значения
         string section  = "00",
@@ -106,7 +106,7 @@ private static string GenerateRegNumber(Узел node)
     /// Генерирует SQL-скрипт для создания таблицы output.
     /// </summary>
     /// <returns>SQL-скрипт для создания таблицы.</returns>
-    public static string AddTableCreationSql() =>
+    public static string AddTableCreationSql =>
         """
         IF OBJECT_ID('output', 'U') IS NOT NULL 
             DROP TABLE [output];

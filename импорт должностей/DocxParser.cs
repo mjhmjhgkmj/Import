@@ -1,13 +1,14 @@
 ﻿using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
 using System.Text.RegularExpressions;
-using импорт_должностей_жилсубсидий;
+
+namespace импорт_должностей_жилсубсидий;
 
 public class DocxParser
 {
-    private readonly HierarchyTree _hierarchyTree = new(); // Хранит иерархию узлов
-    private readonly TextParser _textParser = new(); // Парсер текста для определения типа узлов
-    private readonly SqlGenerator _sqlGenerator = new(); // Генератор SQL-запросов
+    private readonly HierarchyTree  _hierarchyTree  = new(); // Хранит иерархию узлов
+    private readonly TextParser     _textParser     = new(); // Парсер текста для определения типа узлов
+    private readonly SqlGenerator   _sqlGenerator   = new(); // Генератор SQL-запросов
 
     /// <summary>
     /// Парсит документ Word и генерирует SQL-скрипт для создания таблиц и вставки данных.
@@ -16,20 +17,14 @@ public class DocxParser
     /// <returns>Сгенерированный SQL-скрипт.</returns>
     public string ParseAndGenerateSql(WordprocessingDocument doc)
     {
-        var sql = SqlGenerator.AddTableCreationSql();
-
-        var body = doc.MainDocumentPart?.Document.Body
-            ?? throw new Exception("Некорректная структура документа");
-
         // Обрабатываем валидные таблицы в документе
-        body.Elements<Table>()
+        doc.MainDocumentPart?.Document.Body?.Elements<Table>()
             .Where(IsValidTable)
             .ToList()
             .ForEach(ProcessTable);
 
         // Добавляем SQL-запросы для вставки данных
-        sql += _sqlGenerator.GenerateInsertStatements();
-        return sql;
+        return SqlGenerator.AddTableCreationSql + _sqlGenerator.GenerateInsertStatements(); ;
     }
 
 
@@ -84,15 +79,15 @@ public class DocxParser
         else if (parser is ПарсерИмениРаздела)
         {
             // Обновляем имя раздела
-            _hierarchyTree.ОбновитьИмяРаздела($"Раздел {_hierarchyTree.GetSectionNode().Value} {name}");
-            _sqlGenerator.AddSQLEntry(_hierarchyTree.GetSectionNode()!, name);
+            _hierarchyTree.ОбновитьИмяРаздела($"Раздел {_hierarchyTree.GetSectionNode()?.Value} {name}");
+            _sqlGenerator.AddSQLRecord(_hierarchyTree.GetSectionNode()!, name);
         }
         // Если это другой узел иерархии то обработка однотипная
         else if (node != null)
         {
             // Добавляем узел в иерархию и записываем в SQL
             _hierarchyTree.AddNode(node);
-            _sqlGenerator.AddSQLEntry(node, _hierarchyTree.GetSectionNode()?.Name ?? string.Empty);
+            _sqlGenerator.AddSQLRecord(node, _hierarchyTree.GetSectionNode()?.Name ?? string.Empty);
         }
     }
 
@@ -115,7 +110,7 @@ public class DocxParser
         // Обрабатываем регистрационный номер (например, добавляем суффикс)
         regNumber = ProcessRegNumber(regNumber);
         // Добавляем запись о должности в SQL
-        _sqlGenerator.AddPositionEntry(name, regNumber, groupNode, _hierarchyTree.GetSectionNode()?.Name ?? string.Empty);
+        _sqlGenerator.AddPositionRecord(name, regNumber, groupNode, _hierarchyTree.GetSectionNode()?.Name ?? string.Empty);
     }
 
     /// <summary>
