@@ -1,6 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 
-namespace импорт_должностей_жилсубсидий;
+namespace импорт_должностей;
 
 public interface IParser
 {
@@ -133,5 +133,5 @@ public class TextParser
     /// <param name="text">Текст для проверки.</param>
     /// <returns>Подходящий парсер или null, если парсер не найден.</returns>
     public IParser? GetParser(string text) =>
-        _parsers.First(p => p.CanParse(text));
+        _parsers.FirstOrDefault(p => p.CanParse(text));
 }

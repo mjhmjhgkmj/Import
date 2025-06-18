@@ -1,7 +1,7 @@
 ﻿using DocumentFormat.OpenXml.Packaging;
 using System.Text;
 
-namespace импорт_должностей_жилсубсидий;
+namespace импорт_должностей;
 
 public class Program
 {

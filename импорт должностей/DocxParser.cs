@@ -2,7 +2,7 @@
 using DocumentFormat.OpenXml.Wordprocessing;
 using System.Text.RegularExpressions;
 
-namespace импорт_должностей_жилсубсидий;
+namespace импорт_должностей;
 
 public class DocxParser
 {
