@@ -4,6 +4,10 @@ using System.Text.RegularExpressions;
 
 namespace импорт_должностей;
 
+/// <summary>
+/// Читает docx, ищет таблицу, парсит и создает SQL.
+/// Нарушение приципа единственной ответственности, но так меньше кода и разбить на части с единственной ответственностью уже трудно
+/// </summary>
 public class DocxParser
 {
     private readonly HierarchyTree  _hierarchyTree  = new(); // Хранит иерархию узлов

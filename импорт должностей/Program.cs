@@ -3,7 +3,7 @@ using System.Text;
 
 namespace импорт_должностей;
 
-public class Program
+public static class Program
 {
     public static void Main(string[] args)
     {

@@ -1,4 +1,6 @@
-﻿public class HierarchyTree
+﻿namespace импорт_должностей;
+
+public class HierarchyTree
 {
     /// <summary>
     /// Корневой узел иерархии. Может быть null, если иерархия еще не инициализирована.

@@ -1,5 +1,7 @@
 ﻿using System.Text;
 
+namespace импорт_должностей;
+
 public class SqlGenerator
 {
     private readonly List<SQLPositionRecord> _SQLRecords = [];
@@ -41,31 +43,31 @@ public class SqlGenerator
     /// <param name="sectionName">Имя раздела (не используется в текущей реализации).</param>
     /// <returns>Сгенерированный регистрационный номер.</returns>
     /// <exception cref="InvalidOperationException">Выбрасывается, если тип узла не поддерживается.</exception>
-        // code Уровень          REGNUMBER           Пример
-        // XX   Раздел           XX-0-0-0R0          11-0-0-0R0
-        // A    Подраздел        XX-0-0-AR0          11-0-0-3R0
-        // B    Глава            XX-0-0-ARB          11-0-0-3R6
-        // Y    Категория        XX-Y-0-ARB          11-3-0-3R6
-        // Z    Группа           XX-Y-Z-ARB          11-3-4-3R6
-        // abc  Должность        XX-Y-Z-abc          11-3-4-001
-private static string GenerateRegNumber(Node node)
+    // code Уровень          REGNUMBER           Пример
+    // XX   Раздел           XX-0-0-0R0          11-0-0-0R0
+    // A    Подраздел        XX-0-0-AR0          11-0-0-3R0
+    // B    Глава            XX-0-0-ARB          11-0-0-3R6
+    // Y    Категория        XX-Y-0-ARB          11-3-0-3R6
+    // Z    Группа           XX-Y-Z-ARB          11-3-4-3R6
+    // abc  Должность        XX-Y-Z-abc          11-3-4-001
+    private static string GenerateRegNumber(Node node)
     {
         // дефолтные значения
-        string section  = "00",
+        string section = "00",
                category = "0",
-               group    = "0",
-               sub      = "0",
-               chapter  = "0";
+               group = "0",
+               sub = "0",
+               chapter = "0";
 
         // поднимаемся к корню и берем нужные значения
         for (var n = node; n is not null; n = n.Parent)
             switch (n)
             {
-                case Раздел     s: section  = s.Value; break;
-                case Категория  c: category = c.Value; break;
-                case Группа     g: group    = g.Value; break;
-                case Подраздел  p: sub      = p.Value; break;
-                case Глава      h: chapter  = h.Value; break;
+                case Раздел s: section = s.Value; break;
+                case Категория c: category = c.Value; break;
+                case Группа g: group = g.Value; break;
+                case Подраздел p: sub = p.Value; break;
+                case Глава h: chapter = h.Value; break;
             }
 
         return $"{section}-{category}-{group}-{sub}R{chapter}";
@@ -108,24 +110,24 @@ private static string GenerateRegNumber(Node node)
     /// <returns>SQL-скрипт для создания таблицы.</returns>
     public static string AddTableCreationSql =>
         """
-        IF OBJECT_ID('output', 'U') IS NOT NULL 
-            DROP TABLE [output];
-        GO
+    IF OBJECT_ID('output', 'U') IS NOT NULL 
+        DROP TABLE [output];
+    GO
 
-        CREATE TABLE [output] (
-            DICT_ID UNIQUEIDENTIFIER NOT NULL,
-            DICT_PARENT UNIQUEIDENTIFIER NULL,
-            NAME NVARCHAR(2000) NOT NULL,
-            REGNUMBER NVARCHAR(20) NOT NULL,
-            NNUMBER INT NOT NULL,
-            ORCL_ID NVARCHAR(50) NULL,
-            S_SECTION_NAME NVARCHAR(500) NULL,
-            CONSTRAINT PK_output PRIMARY KEY (DICT_ID),
-            CONSTRAINT FK_output_DICT_PARENT FOREIGN KEY (DICT_PARENT) 
-                REFERENCES [output] (DICT_ID)
-        );
-        GO
+    CREATE TABLE [output] (
+        DICT_ID UNIQUEIDENTIFIER NOT NULL,
+        DICT_PARENT UNIQUEIDENTIFIER NULL,
+        NAME NVARCHAR(2000) NOT NULL,
+        REGNUMBER NVARCHAR(20) NOT NULL,
+        NNUMBER INT NOT NULL,
+        ORCL_ID NVARCHAR(50) NULL,
+        S_SECTION_NAME NVARCHAR(500) NULL,
+        CONSTRAINT PK_output PRIMARY KEY (DICT_ID),
+        CONSTRAINT FK_output_DICT_PARENT FOREIGN KEY (DICT_PARENT) 
+            REFERENCES [output] (DICT_ID)
+    );
+    GO
 
 
-        """;
+    """;
 }

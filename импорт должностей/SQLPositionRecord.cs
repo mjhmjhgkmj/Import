@@ -1,4 +1,6 @@
-﻿public record SQLPositionRecord(string? ParentDictId, string? Name, string? RegNumber, string? SectionName, int Nnumber)
+﻿namespace импорт_должностей;
+
+public record SQLPositionRecord(string? ParentDictId, string? Name, string? RegNumber, string? SectionName, int Nnumber)
 {
     public string? DictId { get; set; } = Guid.NewGuid().ToString();
 
