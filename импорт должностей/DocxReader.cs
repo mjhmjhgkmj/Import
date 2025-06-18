@@ -9,7 +9,7 @@ namespace импорт_должностей
 {
     public class DocxReader
     {
-        public IEnumerable<Table> GetValidTables(WordprocessingDocument doc)
+        public IEnumerable<Table>? GetValidTables(WordprocessingDocument doc)
         {
             return doc.MainDocumentPart?.Document.Body?.Elements<Table>()
                 .Where(IsValidTable)

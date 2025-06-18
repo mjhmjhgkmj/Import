@@ -19,6 +19,7 @@ public class DocxParser
     public string ParseAndGenerateSql(WordprocessingDocument doc)
     {
         var validTables = _docxReader.GetValidTables(doc);
+        if (validTables == null) throw new Exception("не найдена таблица");
         foreach (var table in validTables)
         {
             _tableProcessor.ProcessTable(table);

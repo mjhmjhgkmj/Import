@@ -23,11 +23,11 @@ namespace импорт_должностей
             if (string.IsNullOrEmpty(text)) return;
 
             var parser = _textParser.GetParser(text);
-            if (parser == null) return;
+            if (parser == null) return;// мусор игнорируем
 
             var (value, name, node) = parser.Parse(text);
 
-            if (parser is ПарсерРаздела)
+            if (parser is ПарсерРаздела)// чтобы не усложнять парсинг лучше бы привести таблицу к хорошему виду заранее
             {
                 _hierarchyTree.НачатьНовыйРаздел(value, name);
             }
