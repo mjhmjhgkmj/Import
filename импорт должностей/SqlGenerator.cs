@@ -30,9 +30,9 @@ public class SqlGenerator
     /// <param name="regNumber">Регистрационный номер должности.</param>
     /// <param name="parentNode">Родительский узел (группа).</param>
     /// <param name="sectionName">Имя раздела, связанного с должностью.</param>
-    public void AddPositionRecord(string name, string regNumber, Node parentNode, string sectionName)
+    public void AddPositionRecord(string name, string regNumber, Node? parentNode, string sectionName)
     {
-        var record = new SQLPositionRecord(parentNode.DictId, name, regNumber, sectionName, _nnumber++);
+        var record = new SQLPositionRecord(parentNode?.DictId, name, regNumber, sectionName, _nnumber++);
         _SQLRecords.Add(record);
     }
 
